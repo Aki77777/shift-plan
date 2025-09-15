@@ -79,7 +79,7 @@ const ERRORS_MAX = 2;
 
 // ===== Standby radnici (izvan linije) =====
 const standbyWorkers = [
-    { id: "s1", ime: "Dario", uloga: "Voditelj smjene", status: Status.POSAO },
+    { id: "s1", ime: "Dario", uloga: "Voditelj smijene", status: Status.POSAO },
     { id: "s2", ime: "Matea", uloga: "Materijal", status: Status.SLOBODNO },
     { id: "s3", ime: "Luka", uloga: "Kvaliteta", status: Status.GODISNJI },
     { id: "s4", ime: "Ivo", uloga: "Održavanje", status: Status.BOLOVANJE },
