@@ -1,0 +1,507 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+
+    /* Novi gradient background */
+    background: linear-gradient(135deg, #1c1c1c, #2e3a47, #f5f5f5);
+    background-attachment: fixed;
+}
+
+
+.container {
+    position: relative;
+    width: 1000px;
+    margin: auto;
+    height: 300px;
+}
+
+.worker {
+    position: absolute;
+    width: 80px;
+    height: 60px;
+    border-radius: 10px;
+    line-height: 60px;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+    font-size: 14px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.L {
+    background-color: #4da6ff;
+}
+
+.D {
+    background-color: #66cc66;
+}
+
+.center {
+    background-color: orange;
+}
+
+.belt {
+    position: absolute;
+    top: 132px;
+    left: 60px;
+    width: 880px;
+    height: 35px;
+    background-color: #d9d9d9;
+    background-image: repeating-linear-gradient(-90deg,
+            transparent,
+            transparent 10px,
+            black 10px,
+            black 12px);
+    background-size: 40px 40px;
+    animation: beltMove 1s linear infinite;
+    z-index: -1;
+}
+
+@keyframes beltMove {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 40px 0;
+    }
+}
+
+.car-body {
+    position: absolute;
+    top: 123px;
+    left: -50px;
+    width: 48px;
+    height: auto;
+    animation: moveCar 10s linear infinite;
+}
+
+.car-body:nth-child(2) {
+    animation-delay: 3s;
+}
+
+.car-body:nth-child(3) {
+    animation-delay: 6s;
+}
+
+@keyframes moveCar {
+    0% {
+        left: 0px;
+    }
+
+    100% {
+        left: 960px;
+    }
+}
+
+.arrow {
+    position: absolute;
+    font-size: 32px;
+    color: black;
+    font-weight: bold;
+}
+
+.robot-arm {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    z-index: 2;
+}
+
+.robot-arm img {
+    width: 100%;
+    height: 100%;
+}
+
+button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+/* Kratki pop-up indikator greške iznad radnika */
+.error-pop {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    background: #ffffff;
+    border: 2px solid #e10600;
+    /* crveni rub */
+    border-radius: 50%;
+    /* krug */
+    color: #e10600;
+    /* crveni X */
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .2);
+    pointer-events: none;
+    z-index: 5;
+    animation: errorPop .5s ease-out forwards;
+    /* 0.5s ukupno */
+}
+
+@keyframes errorPop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -5px) scale(.9);
+    }
+
+    30% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -25px) scale(1);
+    }
+}
+
+/* ================= Moderni stil tablica (dark/blue/dirty-white) ================= */
+:root {
+    --bg-dark: #1f242b;
+    /* tamno siva – baza (7) */
+    --bg-darker: #181c21;
+    /* još tamnije za kartice */
+    --fg-primary: #e6edf3;
+    /* svijetli tekst na darku */
+    --blue: #0e4c8c;
+    /* tamno-plava – akcent (2) */
+    --blue-grad: linear-gradient(135deg, #0e3a5e 0%, #0e4c8c 50%, #0b6bc1 100%);
+    --dirty-white: #f2efe7;
+    /* prljavo bijela –  (1)  */
+    --line: rgba(255, 255, 255, 0.08);
+    --line-strong: rgba(14, 76, 140, 0.35);
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* kontejner kartice (opcionalno za ljepši okvir oko tablice) */
+.table-card {
+    background: var(--bg-darker);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 16px 18px 20px;
+    margin: 28px auto;
+    max-width: 980px;
+}
+
+/* naslov iznad tablice */
+.report-caption {
+    color: var(--fg-primary);
+    font-weight: 700;
+    letter-spacing: .2px;
+    margin: 0 0 12px;
+    text-align: left;
+}
+
+/* omotač za responzivni scroll ako zatreba */
+.table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+}
+
+/* glavna tablica */
+.report-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 720px;
+    color: var(--fg-primary);
+    background: var(--bg-dark);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* zaglavlje */
+.report-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--blue-grad);
+    color: #fff;
+    text-align: left;
+    font-weight: 700;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line-strong);
+    white-space: nowrap;
+}
+
+/* redovi */
+.report-table tbody td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+}
+
+.report-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* zebra + hover */
+.report-table tbody tr:nth-child(odd) td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.report-table tbody tr:hover td {
+    background: rgba(11, 107, 193, 0.08);
+    /* lagani plavi “glow” */
+}
+
+/* prva kolona (ime) – istakni */
+.report-table tbody td:first-child {
+    font-weight: 700;
+    color: var(--dirty-white);
+}
+
+/* male “badges” i brojke */
+.badge {
+    display: inline-block;
+    min-width: 28px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(14, 76, 140, 0.14);
+    color: #b9dcff;
+    text-align: center;
+    font-weight: 700;
+    font-size: 12px;
+}
+
+/* kartična linija između blokova tablica */
+.hr-soft {
+    height: 1px;
+    background: var(--line);
+    margin: 22px 0 18px;
+}
+
+/* ====== Dodatni stilovi za "Ukupno" i naglašene badge ====== */
+th.th-ukupno {
+    min-width: 96px;
+    text-align: right;
+}
+
+td.td-ukupno {
+    text-align: right;
+}
+
+.badge--sum {
+    background: rgba(242, 239, 231, 0.18);
+    /* prljavo-bijela kao hint */
+    color: #ffffff;
+    border: 1px solid var(--line);
+    padding: 4px 10px;
+}
+
+/* ====== Layout: glavni + sidebar ====== */
+.layout {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 24px;
+    margin: 0 auto;
+    max-width: 1300px;
+}
+
+.main {
+    flex: 0 1 1000px;
+}
+
+.sidebar {
+    flex: 0 0 280px;
+}
+
+/* ====== Standby lista ====== */
+.standby-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.standby-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-dark);
+    border: 1px solid var(--line);
+    padding: 8px 10px;
+    border-radius: 10px;
+}
+
+.standby-chip .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(14, 76, 140, 0.25);
+    color: #b9dcff;
+    font-weight: 800;
+    font-size: 12px;
+    border: 1px solid var(--line-strong);
+}
+
+.standby-chip .person {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+}
+
+.standby-chip .person .name {
+    color: var(--dirty-white);
+    font-weight: 700;
+}
+
+.standby-chip .person .role {
+    color: #9fb3c8;
+    font-size: 12px;
+}
+
+/* ====== Kartica radnika ====== */
+.wcard {
+    background: var(--bg-dark);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+}
+
+.wcard-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.wcard .avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(14, 76, 140, 0.35);
+    color: #d5e9ff;
+    font-weight: 800;
+    font-size: 16px;
+    border: 1px solid var(--line-strong);
+}
+
+.wcard .name {
+    color: var(--dirty-white);
+    font-weight: 800;
+    font-size: 16px;
+}
+
+.wcard .role {
+    color: #9fb3c8;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.wcard-status {
+    margin-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--line);
+}
+
+.lamp {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Status boje: zeleno, crveno, žuto, plavo */
+.lamp--green {
+    background: #2ecc71;
+    box-shadow: 0 0 10px rgba(46, 204, 113, .6);
+}
+
+.lamp--red {
+    background: #e10600;
+    box-shadow: 0 0 10px rgba(225, 6, 0, .6);
+}
+
+.lamp--yellow {
+    background: #f1c40f;
+    box-shadow: 0 0 10px rgba(241, 196, 15, .6);
+}
+
+.lamp--blue {
+    background: #0b6bc1;
+    box-shadow: 0 0 10px rgba(11, 107, 193, .6);
+}
+
+.status-text {
+    color: var(--fg-primary);
+    font-weight: 700;
+    letter-spacing: .2px;
+}
+
+/* ===== Pozadina stranice: prljavo bijela → tamno siva (soft gradient) ===== */
+html,
+body {
+    height: 100%;
+}
+
+body {
+    /* suptilan multi-stop gradient; možeš promijeniti kut (160deg) po želji */
+    background: linear-gradient(160deg,
+            var(--dirty-white) 0%,
+            #e9e6dc 18%,
+            #cbd3dd 38%,
+            #2a2f35 68%,
+            var(--bg-darker) 100%);
+    /* malo “disanja” oko centra */
+    background-attachment: fixed;
+}
+
+/* naslov neka kontrastira na gradijentu */
+h2 {
+    color: var(--dirty-white);
+    letter-spacing: .2px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+}
+
+/* ===== Centriranje tablica: svi stupci osim prvog ===== */
+.report-table thead th {
+    text-align: center;
+}
+
+.report-table thead th:first-child {
+    text-align: left;
+}
+
+.report-table tbody td {
+    text-align: center;
+}
+
+.report-table tbody td:first-child {
+    text-align: left;
+}
+
+/* "Ukupno" neka ostane desno poravnat (preuzima prednost) */
+th.th-ukupno {
+    text-align: right !important;
+}
+
+td.td-ukupno {
+    text-align: right !important;
+}

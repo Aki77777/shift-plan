@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="hr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Automatska rotacija radnika</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <h2>Shema rotacije radnika uz radnu traku</h2>
+    <div class="layout">
+        <div class="main">
+
+            <!-- Kontrolni panel: dan, smjena, runda + gumb -->
+            <div id="panel" style="margin: 10px 0 16px;">
+                <strong>Dan:</strong> <span id="dayLabel">Ponedjeljak</span> |
+                <strong>Smjena:</strong> <span id="shiftLabel">1</span> |
+                <strong>Runda u smjeni:</strong> <span id="roundLabel">0 / 5</span>
+                &nbsp;&nbsp;
+                <button id="nextShiftBtn" type="button">Nova smjena</button>
+            </div>
+
+            <div class="container">
+                <div class="belt"></div>
+                <img class="car-body" src="https://cdn-icons-png.flaticon.com/512/18065/18065955.png" />
+                <img class="car-body" src="https://cdn-icons-png.flaticon.com/512/18065/18065955.png"
+                    style="animation-delay: 3s;" />
+                <img class="car-body" src="https://cdn-icons-png.flaticon.com/512/18065/18065955.png"
+                    style="animation-delay: 6s;" />
+                <img class="car-body" src="https://cdn-icons-png.flaticon.com/512/18065/18065955.png"
+                    style="animation-delay: 9s;" />
+
+                <!-- Lijeva strana (veći razmak) -->
+                <div id="1L" class="worker L" style="top: 60px; left: 60px;"></div>
+                <div class="arrow" style="top: 68px; left: 150px;">➞</div>
+                <div id="2L" class="worker L" style="top: 60px; left: 200px;"></div>
+                <div class="arrow" style="top: 68px; left: 290px;">➞</div>
+                <div id="3L" class="worker L" style="top: 60px; left: 340px;"></div>
+                <div class="arrow" style="top: 68px; left: 430px;">➞</div>
+                <div id="4L" class="worker L" style="top: 60px; left: 480px;"></div>
+
+                <!-- Desna strana (veći razmak) -->
+                <div id="1D" class="worker D" style="top: 180px; left: 60px;"></div>
+                <div class="arrow" style="top: 188px; left: 150px;">➞</div>
+                <div id="2D" class="worker D" style="top: 180px; left: 200px;"></div>
+                <div class="arrow" style="top: 188px; left: 290px;">➞</div>
+                <div id="3D" class="worker D" style="top: 180px; left: 340px;"></div>
+                <div class="arrow" style="top: 188px; left: 430px;">➞</div>
+                <div id="4D" class="worker D" style="top: 180px; left: 480px;"></div>
+
+                <!-- Pozicija 5 -->
+                <div id="5" class="worker center" style="top: 120px; left: 600px;"></div>
+
+                <!-- Robotske ruke nakon pozicije 5 -->
+                <div class="robot-arm" style="top: 50px; left: 700px;">
+                    <img src="https://cdn-icons-gif.flaticon.com/19000/19000868.gif" alt="robot arm">
+                </div>
+                <div class="robot-arm" style="top: 50px; left: 780px;">
+                    <img src="https://cdn-icons-gif.flaticon.com/19000/19000868.gif" alt="robot arm">
+                </div>
+                <div class="robot-arm" style="top: 170px; left: 700px;">
+                    <img src="https://cdn-icons-gif.flaticon.com/19000/19000868.gif" alt="robot arm">
+                </div>
+                <div class="robot-arm" style="top: 170px; left: 780px;">
+                    <img src="https://cdn-icons-gif.flaticon.com/19000/19000868.gif" alt="robot arm">
+                </div>
+
+            </div>
+
+            <button onclick="rotate()">Ručna rotacija</button>
+        </div><!-- /main -->
+
+        <!-- Sidebar: Standby radnici + Kartica radnika -->
+        <aside class="sidebar">
+            <div class="standby-card table-card">
+                <h3 class="report-caption">Standby radnici</h3>
+                <div id="standbyList" class="standby-list"></div>
+            </div>
+
+            <div class="hr-soft"></div>
+
+            <div class="worker-info-card table-card">
+                <h3 class="report-caption">Radnik – info</h3>
+                <div id="workerCard" class="wcard">
+                    <div class="wcard-header">
+                        <div class="avatar" id="wcardAvatar">AA</div>
+                        <div class="wcard-title">
+                            <div id="wcardName" class="name">Ime Prezime</div>
+                            <div id="wcardRole" class="role">Uloga</div>
+                        </div>
+                    </div>
+                    <div class="wcard-status">
+                        <span class="lamp" id="wcardLamp"></span>
+                        <span id="wcardStatus" class="status-text">na_poslu</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div><!-- /layout -->
+
+
+    <script src="script.js"></script>
+</body>
+
+</html>
