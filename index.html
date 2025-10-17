@@ -16,10 +16,10 @@
             <!-- Kontrolni panel: dan, smjena, runda + gumb -->
             <div id="panel" style="margin: 10px 0 16px;">
                 <strong>Dan:</strong> <span id="dayLabel">Ponedjeljak</span> |
-                <strong>Smjena:</strong> <span id="shiftLabel">1</span> |
+                <strong>Smjena:</strong> <span id="shiftLabel">A</span> |
                 <strong>Runda u smjeni:</strong> <span id="roundLabel">0 / 5</span>
                 &nbsp;&nbsp;
-                <button id="nextShiftBtn" type="button">Nova smjena</button>
+                <button class="accent" id="nextShiftBtn" type="button">Nova smjena</button>
             </div>
 
             <div class="container">
@@ -70,6 +70,18 @@
             </div>
 
             <button onclick="rotate()">Ručna rotacija</button>
+            <button onclick="showSummary()">Prikaži sažetak sada</button>
+            <button id="startAutoBtn" type="button">Pokreni auto-rotaciju</button>
+            <button id="stopAutoBtn" type="button">Zaustavi auto-rotaciju</button>
+            <label style="display:inline-flex;align-items:center;gap:8px;margin-left:8px;">
+                <input type="checkbox" id="strictMode">
+                Strict mod (bez fallbacka)
+            </label>
+            <button>Statistika</button>
+            <button class="soft">Greške</button>
+            <button class="soft">Postavke</button>
+
+            <div id="coverageWarning" class="warn-bar" style="display:none;"></div>
         </div><!-- /main -->
 
         <!-- Sidebar: Standby radnici + Kartica radnika -->
