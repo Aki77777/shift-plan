@@ -1063,3 +1063,193 @@ button.small {
     color: red;
     font-weight: 800;
 }
+
+/* === Stvarni raspored po rundama (tablice u sažetku) === */
+.table-card {
+    color: #f1f5f9;
+}
+
+/* svijetla boja teksta kao i druge tablice */
+
+.table-card table {
+    color: inherit;
+}
+
+.table-card th,
+.table-card td {
+    color: inherit;
+}
+
+/* malo podebljaj radi čitljivosti */
+.table-card th {
+    font-weight: 700;
+}
+
+.table-card td {
+    font-weight: 600;
+}
+
+/* ==== TROKUT UPOZORENJA – stabilno, bez pomicanja layouta ==== */
+
+/* boje kategorija */
+.flag-red {
+    --flag-color: #ef4444;
+}
+
+/* 1 pozicija */
+.flag-orange {
+    --flag-color: #f59e0b;
+}
+
+/* 2–3 pozicije */
+.flag-yellow {
+    --flag-color: #fbbf24;
+}
+
+/* 4+ pozicija */
+
+/* 1) ŽIVA ROTACIJA: mali trokut u gornjem desnom kutu kartice */
+.corner-flag {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 3;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 12px solid var(--flag-color, #fbbf24);
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, .35));
+}
+
+.corner-flag::after {
+    content: "!";
+    position: absolute;
+    /* spušteno i centrirano */
+    top: 4px;
+    /* prije je bilo -1px */
+    left: -2px;
+    /* prije -2px */
+    font-size: 9px;
+    /* prije 8px */
+    font-weight: 900;
+    line-height: 1;
+    color: #111;
+}
+
+
+/* 2) TABLICE/KARTICA: minijaturni trokut uz ime (inline) */
+.inline-flag {
+    display: inline-block;
+    position: relative;
+    width: 0;
+    height: 0;
+    vertical-align: text-top;
+    margin-left: 6px;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 9px solid var(--flag-color, #fbbf24);
+}
+
+.inline-flag::after {
+    content: "!";
+    position: absolute;
+    top: 2px;
+    /* prije -1px */
+    left: -2px;
+    /* ostaje -2px */
+    font-size: 7px;
+    /* ostaje 7px */
+    font-weight: 900;
+    line-height: 1;
+    color: #111;
+}
+
+
+
+/* ——— Radnik-info: čisti set (LIVE gore desno + strelice stupac) ——— */
+.worker-info-card {
+    position: relative;
+}
+
+/* referenca za LIVE badge */
+.worker-info-card .wcard-header {
+    position: relative;
+}
+
+/* referenca za strelice u headeru */
+
+/* LIVE badge – gornji desni kut CIJELOG panela “Radnik-info” */
+.worker-info-card .wcard-mode {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    left: auto;
+    z-index: 6;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #0f1720;
+    color: #9fb3c8;
+    border: 1px solid rgba(255, 255, 255, .12);
+    user-select: none;
+}
+
+/* Navigacijske strelice – jedan ispod druge, poravnate i centrirane */
+.worker-info-card .wcard-nav {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    /* ako dira LIVE, podigni na npr. top:36px; */
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 28px;
+    /* isti desni rub + fiksna širina kućica */
+    align-items: stretch;
+    z-index: 5;
+}
+
+.worker-info-card .wcard-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* strelica u sredini */
+    width: 100%;
+    height: 24px;
+    padding: 0;
+    box-sizing: border-box;
+    /* kućice jednake */
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, .15);
+    background: linear-gradient(180deg, #1c2735, #121a24);
+    color: #e8f0fb;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.worker-info-card .wcard-btn:hover {
+    filter: brightness(1.1);
+}
+
+.worker-info-card .wcard-btn:active {
+    transform: translateY(1px);
+}
+
+
+/* osiguraj da LIVE ne blokira klikove ispod */
+.worker-info-card .wcard-mode {
+    pointer-events: none;
+}
+
+/* strelice neka budu iznad i klikabilne */
+.worker-info-card .wcard-nav {
+    z-index: 20;
+}
+
+.worker-info-card .wcard-btn {
+    pointer-events: auto;
+}

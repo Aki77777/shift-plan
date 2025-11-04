@@ -1,3 +1,6 @@
+// === globals ===
+let wcardBrowseIndex = null;   // null = LIVE (nije u pregledu)
+
 // Ako želiš potpuno izbjeći kršenje kvalifikacija, stavi ALLOW_FALLBACK = false
 let ALLOW_FALLBACK = false; // false = STRICT (bez kršenja), true = dopušten fallback
 // ← stavi false da NIKAD ne kršimo kvalifikacije
@@ -192,16 +195,30 @@ function statusToLampClass(status) {
 }
 // Odabir izvora za carousel: online radnici (assignment) + standby
 function getCarouselList() {
-    // online radnici po trenutnom assignmentu (redoslijed pozicija)
-    const onlineIds = rotationOrder.map(pos => assignment[pos]);
-    const uniqOnline = [...new Set(onlineIds)]
-        .map(id => ({ ime: workersMap[id]?.ime || id, uloga: "Linija", status: workersMap[id]?.status || Status.POSAO }));
+    // 1) ID-jevi koji su trenutno na traci (po redoslijedu pozicija)
+    const onlineIds = rotationOrder
+        .map(pos => assignment[pos])
+        .filter(Boolean); // izbaci prazna mjesta
 
-    // standby
-    const standby = standbyWorkers.map(s => ({ ime: s.ime, uloga: s.uloga, status: s.status }));
+    // 2) Mapa u PUNE objekte iz workersMap (dodamo i .id ako fali)
+    const online = onlineIds
+        .map(id => {
+            const w = workersMap[id];
+            return w ? { id, ...w } : null;
+        })
+        .filter(Boolean);
 
-    return [...uniqOnline, ...standby];
+    // 3) “Standby” aktivni koji nisu na traci (da ima što vrtiti ako netko nije zauzeo poziciju)
+    const onlineSet = new Set(onlineIds);
+    const standby = Object.entries(workersMap)
+        .filter(([id, w]) => w && w.status === Status.POSAO && !onlineSet.has(id))
+        .map(([id, w]) => ({ id, ...w }));
+
+    // 4) Prioritet: ONLINE ako ih ima → inače STANDBY → inače SVI (fallback)
+    const all = Object.entries(workersMap).map(([id, w]) => ({ id, ...w }));
+    return online.length ? online : (standby.length ? standby : all);
 }
+
 
 function renderWorkerCard(item) {
     const nameEl = document.getElementById("wcardName");
@@ -211,7 +228,8 @@ function renderWorkerCard(item) {
     const statusEl = document.getElementById("wcardStatus");
     if (!nameEl || !roleEl || !avatarEl || !lampEl || !statusEl) return;
 
-    nameEl.textContent = item.ime;
+    // prije: nameEl.textContent = item.ime;
+    nameEl.innerHTML = `${item.ime} ${renderInlineFlag(item)}`;
     roleEl.textContent = item.uloga;
     avatarEl.textContent = getInitials(item.ime);
     statusEl.textContent = item.status;
@@ -225,11 +243,19 @@ let cardIndex = 0;
 function startWorkerCardCarousel() {
     const list = getCarouselList();
     if (list.length === 0) return;
-    renderWorkerCard(list[cardIndex % list.length]);
+
+    //INIT prikaz
+    wcardBrowseIndex = null;
+    showWcard(list[cardIndex % list.length], "LIVE");
+
     setInterval(() => {
         const freshList = getCarouselList(); // uzmi svježi (ako se assignment promijeni)
+        if (!freshList.length) return;
         cardIndex = (cardIndex + 1) % freshList.length;
-        renderWorkerCard(freshList[cardIndex]);
+
+        //AUTO rotacija -> uvijek LIVE
+        wcardBrowseIndex = null;                    // ← izađi iz PREGLED moda
+        showWcard(freshList[cardIndex], "LIVE");    // ← postavi LIVE
     }, 5000); // 5 sekundi
 }
 
@@ -257,6 +283,7 @@ function stopAutoRotation() {
 
 // Pokreni odmah (ili koristi gumbe)
 startAutoRotation();
+
 
 // Gumbi start/stop
 document.getElementById('startAutoBtn')?.addEventListener('click', startAutoRotation);
@@ -292,18 +319,29 @@ function updateUI() {
         const worker = workerId ? workersMap[workerId] : null;
 
         if (worker && worker.ime) {
-            // POPUNJENA POZICIJA
-            el.textContent = worker.ime;             // prikaži ime radnika
-            el.classList.remove('empty');            // makni oznaku praznog
-            // NE diramo el.style.backgroundColor — boja ostaje po tvojoj CSS klasi (.L, .D, .center)
+            el.textContent = worker.ime;
+            el.classList.remove('empty');
         } else {
-            // PRAZNA POZICIJA (strict mod ili nema dovoljno aktivnih)
             el.textContent = "X";
-            el.classList.add('empty');               // dashed outline iz CSS-a
-
-            // kratki bljesak (ako si dodao .flash-x u CSS-u)
+            el.classList.add('empty');
             el.classList.add("flash-x");
             setTimeout(() => el.classList.remove("flash-x"), 600);
+        }
+
+        const oldFlag = el.querySelector(".corner-flag");
+        if (oldFlag) oldFlag.remove();
+
+        // dodaj novi ako treba (red/orange/yellow prema broju dopuštenih)
+        if (worker) {
+            const f = flagCodeFor(worker); // "red" | "orange" | "yellow" | ""
+            if (f) {
+                const span = document.createElement("span");
+                span.className = `corner-flag flag-${f}`;
+                span.title = (f === "red") ? "1 pozicija"
+                    : (f === "orange") ? "2–3 pozicije"
+                        : "4+ pozicija";
+                el.appendChild(span);
+            }
         }
     }
 }
@@ -444,6 +482,44 @@ function isActiveWorker(worker) {
     return !!worker && worker.status === Status.POSAO;
 }
 
+function getActiveWorkersList() {
+    const list = Object.values(workersMap || {});     // koristi workersMap sigurno
+    const active = list.filter(w => w && w.status === Status.POSAO); // ← koristi konstante
+    return active.length ? active : list;             // fallback: ako nema POSAO, koristi sve
+}
+
+
+
+function showWcard(item, modeText = "LIVE") {
+    // koristiš svoju postojeću funkciju za karticu:
+    renderWorkerCard(item);
+    const m = document.getElementById("wcardMode");
+    if (m) m.textContent = modeText;
+}
+
+
+function allowedCount(w) {
+    const arr = Array.isArray(w?.sposobnePozicije) ? w.sposobnePozicije : [];
+    return arr.length === 0 ? rotationOrder.length : arr.length; // prazno = zna sve
+}
+
+function flagCodeFor(w) {
+    const n = allowedCount(w);
+    if (n === rotationOrder.length) return "";   // zna sve → bez oznake
+    if (n === 1) return "red";                   // 1 pozicija
+    if (n === 2 || n === 3) return "orange";     // 2–3 pozicije
+    return "yellow";                              // 4+ pozicija
+}
+
+function renderInlineFlag(w) {
+    const f = flagCodeFor(w);
+    if (!f) return "";
+    const title = f === "red" ? "1 pozicija" : (f === "orange" ? "2–3 pozicije" : "4+ pozicija");
+    return `<span class="inline-flag flag-${f}" title="${title}"></span>`;
+}
+
+
+
 function canDo(worker, position) {
     // koristi tvoje realno polje 'sposobnePozicije'
     if (!worker) return false;
@@ -581,7 +657,15 @@ function buildPlanTableHTML(roundsArray) {
         html += `<tr><td><strong>${i + 1}</strong></td>`;
         for (const pos of displayOrder) {
             const wid = ass[pos];
-            const label = wid ? (getWorkerById(wid)?.ime || wid) : '<span class="cell-x">X</span>';
+            let label;
+            if (wid) {
+                const w = getWorkerById(wid);
+                const name = (w?.ime || wid);
+                // ime + mali trokut (crveni/narančasti/žuti) prema broju dopuštenih pozicija
+                label = `${name} ${renderInlineFlag(w)}`;
+            } else {
+                label = '<span class="cell-x">X</span>'; // ostavi tvoju varijantu za prazno
+            }
             html += `<td>${label}</td>`;
         }
         html += `</tr>`;
@@ -967,7 +1051,7 @@ function showSummary() {
                 : `<div class="avatar--initials">${initials}</div>`}
       </div>
       <div class="who">
-        <div class="name">${w.ime}</div>
+        <div class="name">${w.ime} ${renderInlineFlag(w)}</div>
         <div class="status"><span class="status-dot ${statusCls}"></span>
           ${w.status || 'Status nepoznat'}
         </div>
@@ -1081,3 +1165,32 @@ bindStrictToggle();
 
 // ako je skripta u <head> ili želiš dodatnu sigurnost, umjesto gornje linije koristi:
 // document.addEventListener('DOMContentLoaded', bindStrictToggle);
+
+
+(function setupWcardNav() {
+    const prev = document.getElementById("wcardPrev");
+    const next = document.getElementById("wcardNext");
+    if (!prev || !next) return;
+
+    prev.addEventListener("click", () => {
+        console.log("[wcard] prev click");          // <— vidiš li ovo u Console?
+        const list = getActiveWorkersList();
+        if (list.length === 0) return;
+
+        if (wcardBrowseIndex === null) wcardBrowseIndex = 0;
+        else wcardBrowseIndex = (wcardBrowseIndex - 1 + list.length) % list.length;
+
+        showWcard(list[wcardBrowseIndex], "PREGLED");
+    });
+
+    next.addEventListener("click", () => {
+        console.log("[wcard] next click");          // <— vidiš li ovo u Console?
+        const list = getActiveWorkersList();
+        if (list.length === 0) return;
+
+        if (wcardBrowseIndex === null) wcardBrowseIndex = 0;
+        else wcardBrowseIndex = (wcardBrowseIndex + 1) % list.length;
+
+        showWcard(list[wcardBrowseIndex], "PREGLED");
+    });
+})();

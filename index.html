@@ -95,6 +95,7 @@
 
             <div class="worker-info-card table-card">
                 <h3 class="report-caption">Radnik – info</h3>
+                <span id="wcardMode" class="wcard-mode">LIVE</span>
                 <div id="workerCard" class="wcard">
                     <div class="wcard-header">
                         <div class="avatar" id="wcardAvatar">AA</div>
@@ -102,6 +103,12 @@
                             <div id="wcardName" class="name">Ime Prezime</div>
                             <div id="wcardRole" class="role">Uloga</div>
                         </div>
+                        <div class="wcard-nav">
+                            <button id="wcardPrev" class="wcard-btn" aria-label="Prethodni">▲</button>
+                            <button id="wcardNext" class="wcard-btn" aria-label="Sljedeći">▼</button>
+                        </div>
+
+
                     </div>
                     <div class="wcard-status">
                         <span class="lamp" id="wcardLamp"></span>
