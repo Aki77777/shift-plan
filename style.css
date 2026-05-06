@@ -1483,8 +1483,15 @@ button.small {
 
 .pos-buttons {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
+}
+
+.pos-btn--center {
+    grid-column: 1 / -1;
+    max-width: calc(50% - 5px);
+    margin: 0 auto;
+    width: 100%;
 }
 
 .pos-btn {

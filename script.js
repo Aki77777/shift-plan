@@ -1403,12 +1403,14 @@ function renderPosButtons() {
     const editor = document.getElementById("posEditor");
     if (!editor || !posEditState.workerId) return;
     const w = workersMap[posEditState.workerId];
+    const displayOrder = ["1L", "1D", "2L", "2D", "3L", "3D", "4L", "4D", "5"];
     editor.innerHTML = `
         <div class="pos-editor-name">${w.ime}</div>
         <div class="pos-buttons">
-            ${rotationOrder.map(pos => {
+            ${displayOrder.map(pos => {
                 const can = posEditState.positions.includes(pos);
-                return `<button class="pos-btn ${can ? 'pos-btn--green' : 'pos-btn--red'}"
+                const centerClass = pos === "5" ? " pos-btn--center" : "";
+                return `<button class="pos-btn ${can ? 'pos-btn--green' : 'pos-btn--red'}${centerClass}"
                     onclick="togglePosButton('${pos}')">${pos}</button>`;
             }).join("")}
         </div>`;
