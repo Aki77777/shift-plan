@@ -1253,3 +1253,135 @@ button.small {
 .worker-info-card .wcard-btn {
     pointer-events: auto;
 }
+
+
+/* ——— Standby + M4 rame-uz-rame ——— */
+.standby-and-m4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+@media (max-width: 900px) {
+    .standby-and-m4 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Ako već imaš .table-card za Standby, M4 će naslijediti stil */
+.m4-card .report-caption {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Diskretan bedž “M4” (ne miješa se s tvojim trokutom kvalifikacije) */
+.badge-m4 {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .2px;
+    background: #263447;
+    color: #a5c4ff;
+    border: 1px solid rgba(255, 255, 255, .12);
+    user-select: none;
+}
+
+/* Tablica M4 (isti vizual kao Standby; prilagodi po potrebi) */
+.m4-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.m4-table th,
+.m4-table td {
+    padding: 8px 10px;
+    border-bottom: 1px dashed rgba(255, 255, 255, .08);
+}
+
+.m4-table th {
+    text-align: left;
+    color: #dbe7ff;
+    opacity: .9;
+}
+
+.m4-table td .name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Overlay s prijedlozima */
+.m4-suggest.hidden {
+    display: none;
+}
+
+.m4-suggest {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.m4-suggest-inner {
+    width: 520px;
+    max-width: 92vw;
+    background: #0f1620;
+    border: 1px solid rgba(255, 255, 255, .15);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .4);
+    padding: 14px;
+}
+
+.m4-suggest-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.m4-close {
+    border: 1px solid rgba(255, 255, 255, .15);
+    background: #162131;
+    color: #e8f0fb;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.m4-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.m4-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #121b28;
+    border: 1px solid rgba(255, 255, 255, .1);
+    border-radius: 10px;
+    padding: 8px 10px;
+}
+
+.m4-item .meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.m4-choose {
+    border: 1px solid rgba(255, 255, 255, .2);
+    background: linear-gradient(180deg, #1c2735, #121a24);
+    color: #e8f0fb;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}

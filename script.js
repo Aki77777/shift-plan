@@ -52,6 +52,71 @@ const workers = [
     { id: "w9", ime: "Aida", status: Status.POSAO, sposobnePozicije: ["5"] }
 ];
 
+
+// ——— Meisterei 4 (susjedni pogon): statusi na hrvatskom ———
+const M4Status = {
+    RASPOLOZIV: "raspoloživ",
+    ZAUZET: "zauzet",
+    ODSUTAN: "odsutan"
+};
+
+// Minimalni primjer (prilagodi imenima i kvalifikacijama)
+const meisterei4Map = {
+    "m4_01": { ime: "Nikola Kovač", uloga: "M4", statusM4: M4Status.RASPOLOZIV, sposobnePozicije: ["1L", "2L", "3L", "4L"] },
+    "m4_02": { ime: "Ivana Radić", uloga: "M4", statusM4: M4Status.RASPOLOZIV, sposobnePozicije: ["1D", "2D"] },
+    "m4_03": { ime: "Petar Marić", uloga: "M4", statusM4: M4Status.ZAUZET, sposobnePozicije: ["2L", "2D", "3D"] },
+    "m4_04": { ime: "Sara Horvat", uloga: "M4", statusM4: M4Status.RASPOLOZIV, sposobnePozicije: rotationOrder }, // zna sve
+    "m4_05": { ime: "Lea Perić", uloga: "M4", statusM4: M4Status.RASPOLOZIV, sposobnePozicije: ["5"] },
+};
+
+const borrowedM4 = new Set(); // ID-jevi M4 koje smo posudili u naš pool
+
+function borrowM4ToPosition(m4id, pos) {
+    const w = meisterei4Map[m4id];
+    if (!w) return;
+
+    // 1) Označi ga “zauzet” u M4
+    w.statusM4 = M4Status.ZAUZET;
+
+    // 2) Ako još nije u našem poolu, ubaci (status = na_poslu)
+    if (!workersMap[m4id]) {
+        workersMap[m4id] = {
+            id: m4id,
+            ime: w.ime,
+            uloga: w.uloga,
+            status: Status.POSAO,
+            sposobnePozicije: w.sposobnePozicije,
+            origin: "M4"
+        };
+        borrowedM4.add(m4id);
+    } else {
+        // već postoji (ranije posuđen) → samo osiguraj status “na_poslu”
+        workersMap[m4id].status = Status.POSAO;
+    }
+
+    // 3) Popuni trenutno praznu poziciju
+    assignment[pos] = m4id;
+
+    // 4) Osvježi UI i tablice
+    renderM4Table();
+    updateUI();
+}
+
+
+function returnBorrowedM4AtShiftEnd() {
+    borrowedM4.forEach(id => {
+        // makni iz našeg poola (više nije “naš”)
+        delete workersMap[id];
+        // vrati status u M4 na “raspoloživ”
+        if (meisterei4Map[id]) meisterei4Map[id].statusM4 = M4Status.RASPOLOZIV;
+    });
+    borrowedM4.clear();
+    renderM4Table(); // osvježi prikaz M4 tablice
+}
+
+
+
+
 // Provjera pokrivenosti: Lijeva (4), Desna (4), Sredina (5 -> 1)
 // Ako nema dovoljno ljudi sposobnih za neku grupu pozicija, dobit ćeš jasnu poruku u konzoli.
 function sanityCheckCoverage() {
@@ -183,6 +248,72 @@ function renderStandby() {
     }).join("");
 }
 
+function renderM4Table() {
+    const el = document.getElementById("m4Table");
+    if (!el) return;
+
+    const rows = Object.entries(meisterei4Map).map(([id, w]) => {
+        const flag = renderInlineFlag(w); // koristi tvoju postojeću funkciju (po sposobnostima)
+        const st = w.statusM4;
+        return `<tr>
+      <td class="name"><span class="badge-m4">M4</span> ${w.ime} ${flag}</td>
+      <td>${st}</td>
+    </tr>`;
+    }).join("");
+
+    el.innerHTML = `<table>
+    <thead><tr><th>Radnik</th><th>Status</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function m4CandidatesForPosition(pos) {
+    // raspoloživi koji smiju na tu poziciju
+    return Object.entries(meisterei4Map)
+        .filter(([id, w]) => w.statusM4 === M4Status.RASPOLOZIV && w.sposobnePozicije.includes(pos))
+        .map(([id, w]) => ({ id, ...w }));
+}
+
+// jednostavno bodovanje: prioritet radnicima s manje ukupnih pozicija (specijalisti)
+function scoreM4(w) { return (w.sposobnePozicije?.length || 99); }
+
+function openM4Suggest(pos) {
+    const list = m4CandidatesForPosition(pos).sort((a, b) => scoreM4(a) - scoreM4(b)).slice(0, 5);
+    const box = document.getElementById("m4Suggest");
+    const ref = document.getElementById("m4PosRef");
+    const ul = document.getElementById("m4List");
+    if (!box || !ref || !ul) return;
+
+    ref.textContent = pos;
+    if (!list.length) {
+        ul.innerHTML = `<div class="m4-item"><div class="meta">Nema raspoloživih radnika za poziciju ${pos}.</div></div>`;
+    } else {
+        ul.innerHTML = list.map(w => {
+            const flag = renderInlineFlag(w);
+            return `<div class="m4-item">
+        <div class="meta"><span class="badge-m4">M4</span> ${w.ime} ${flag}</div>
+        <button class="m4-choose" data-m4id="${w.id}" data-pos="${pos}">Dodaj</button>
+      </div>`;
+        }).join("");
+    }
+
+    box.classList.remove("hidden");
+}
+
+function closeM4Suggest() {
+    const box = document.getElementById("m4Suggest");
+    if (box) box.classList.add("hidden");
+}
+
+
+function maybeSuggestM4() {
+    // nađi prvu praznu poziciju
+    const emptyPos = rotationOrder.find(p => !assignment[p]);
+    if (!emptyPos) return; // nema rupa
+    openM4Suggest(emptyPos);
+}
+
+
 // Mapiranje status -> klasa lampice i tekst
 function statusToLampClass(status) {
     switch (status) {
@@ -261,12 +392,23 @@ function startWorkerCardCarousel() {
 
 
 
+if (!window.__m4WrapApplied) {
+    window.__m4WrapApplied = true;
+    const __origUpdateUI = updateUI;
+    updateUI = function wrappedUpdateUI() {
+        __origUpdateUI.apply(this, arguments);
+        if (document.querySelector('.empty')) maybeSuggestM4();
+    };
+}
+
+
 // ------------------------ Inicijalizacija nakon što je SVE spremno ------------------------
 cleanInactiveAssignments();
 updateUI();
 updatePositionCounts();
 updatePanel();
 renderStandby();
+renderM4Table();
 startWorkerCardCarousel();
 sanityCheckCoverage();
 
@@ -474,8 +616,14 @@ function getTopErrorWorker() {
 // --- Helperi za planiranje (ne diraju "živi" state) ---
 
 function getWorkerById(id) {
-    return workers.find(w => w.id === id);
+    // prvo probaj u workersMap (uključuje M4 “posuđene”)
+    const w = workersMap[id];
+    if (w) return w.id ? w : { id, ...w };  // osiguraj da objekt ima id
+
+    // fallback na statički niz workers (ako kojim slučajem nije u map-i)
+    return workers.find(x => x.id === id) || null;
 }
+
 
 function isActiveWorker(worker) {
     // tvoj Status.POSAO je "na_poslu" → samo direktno usporedi
@@ -1133,6 +1281,8 @@ function showSummary() {
         sortErrors(toggleDesc);
         toggleDesc = !toggleDesc;
     });
+
+    returnBorrowedM4AtShiftEnd();
 }
 
 
@@ -1194,3 +1344,15 @@ bindStrictToggle();
         showWcard(list[wcardBrowseIndex], "PREGLED");
     });
 })();
+
+// Zatvori panel
+document.getElementById("m4Close")?.addEventListener("click", closeM4Suggest);
+// Klik na “Dodaj”
+document.getElementById("m4List")?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".m4-choose");
+    if (!btn) return;
+    const id = btn.getAttribute("data-m4id");
+    const pos = btn.getAttribute("data-pos");
+    if (id && pos) borrowM4ToPosition(id, pos);
+    closeM4Suggest();
+});

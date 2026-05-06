@@ -91,6 +91,13 @@
                 <div id="standbyList" class="standby-list"></div>
             </div>
 
+            <!-- NOVO: Meisterei 4 (susjedni pogon) -->
+            <div class="table-card m4-card">
+                <h3 class="report-caption">Meisterei 4</h3>
+                <div id="m4Table" class="m4-table"></div>
+            </div>
+
+
             <div class="hr-soft"></div>
 
             <div class="worker-info-card table-card">
@@ -116,6 +123,17 @@
                     </div>
                 </div>
             </div>
+            <!-- NOVO: panel s prijedlozima za popunu X pozicije -->
+            <div id="m4Suggest" class="m4-suggest hidden">
+                <div class="m4-suggest-inner">
+                    <div class="m4-suggest-head">
+                        <strong>Fali radnik:</strong> <span id="m4PosRef"></span>
+                        <button id="m4Close" class="m4-close" aria-label="Zatvori">✕</button>
+                    </div>
+                    <div id="m4List" class="m4-list"></div>
+                </div>
+            </div>
+
         </aside>
     </div><!-- /layout -->
 
