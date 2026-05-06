@@ -403,7 +403,9 @@ if (!window.__m4WrapApplied) {
 
 
 // ------------------------ Inicijalizacija nakon što je SVE spremno ------------------------
+loadSavedPositions();
 cleanInactiveAssignments();
+cleanDisqualifiedAssignments();
 updateUI();
 updatePositionCounts();
 updatePanel();
@@ -520,6 +522,18 @@ function cleanInactiveAssignments() {
     for (const pos of rotationOrder) {
         const wid = assignment[pos];
         if (wid && !isActive(wid)) {
+            assignment[pos] = undefined;
+        }
+    }
+}
+
+// Ukloni radnike s pozicija za koje više nisu kvalificirani (nakon učitavanja iz localStorage)
+function cleanDisqualifiedAssignments() {
+    for (const pos of rotationOrder) {
+        const wid = assignment[pos];
+        if (!wid) continue;
+        const w = workersMap[wid];
+        if (w && !canDo(w, pos)) {
             assignment[pos] = undefined;
         }
     }
@@ -1362,7 +1376,6 @@ function loadSavedPositions() {
         }
     } catch (e) {}
 }
-loadSavedPositions();
 
 let posEditState = { workerId: null, positions: [] };
 
