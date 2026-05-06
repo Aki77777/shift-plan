@@ -1,6 +1,16 @@
 // === globals ===
 let wcardBrowseIndex = null;   // null = LIVE (nije u pregledu)
 
+// localStorage ključevi i konstante (moraju biti na vrhu – koriste se u init bloku)
+const LS_POSITIONS_KEY = "workerPositions_v1";
+const LS_STATUS_KEY = "workerStatuses_v1";
+const STATUS_OPTIONS = [
+    { value: "na_poslu",   label: "Na poslu",  cls: "status-btn--posao"     },
+    { value: "bolovanje",  label: "Bolovanje", cls: "status-btn--bolovanje" },
+    { value: "godisnji",   label: "Godišnji",  cls: "status-btn--godisnji"  },
+    { value: "slobodan",   label: "Slobodan",  cls: "status-btn--slobodan"  },
+];
+
 // Ako želiš potpuno izbjeći kršenje kvalifikacija, stavi ALLOW_FALLBACK = false
 let ALLOW_FALLBACK = false; // false = STRICT (bez kršenja), true = dopušten fallback
 // ← stavi false da NIKAD ne kršimo kvalifikacije
@@ -1361,14 +1371,6 @@ bindStrictToggle();
 })();
 
 // ===== Status radnika =====
-const LS_STATUS_KEY = "workerStatuses_v1";
-
-const STATUS_OPTIONS = [
-    { value: Status.POSAO,     label: "Na poslu",  cls: "status-btn--posao"     },
-    { value: Status.BOLOVANJE, label: "Bolovanje", cls: "status-btn--bolovanje" },
-    { value: Status.GODISNJI,  label: "Godišnji",  cls: "status-btn--godisnji"  },
-    { value: Status.SLOBODNO,  label: "Slobodan",  cls: "status-btn--slobodan"  },
-];
 
 function loadSavedStatuses() {
     const saved = localStorage.getItem(LS_STATUS_KEY);
@@ -1439,7 +1441,6 @@ document.getElementById("statusModal")?.addEventListener("click", (e) => {
 });
 
 // ===== Dodjela pozicija =====
-const LS_POSITIONS_KEY = "workerPositions_v1";
 
 function loadSavedPositions() {
     const saved = localStorage.getItem(LS_POSITIONS_KEY);
