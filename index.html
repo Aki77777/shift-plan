@@ -80,6 +80,7 @@
             <button>Statistika</button>
             <button class="soft">Greške</button>
             <button class="soft">Postavke</button>
+            <button class="soft" onclick="openPositionAssignment()">Dodjela pozicija</button>
 
             <div id="coverageWarning" class="warn-bar" style="display:none;"></div>
         </div><!-- /main -->
@@ -137,6 +138,26 @@
         </aside>
     </div><!-- /layout -->
 
+
+    <!-- Modal: Dodjela pozicija -->
+    <div id="positionModal" class="pos-modal hidden">
+        <div class="pos-modal-inner">
+            <div class="pos-modal-head">
+                <strong>Dodjela pozicija radnicima</strong>
+                <button class="m4-close" onclick="closePosModal()">✕</button>
+            </div>
+            <div class="pos-modal-body">
+                <div class="pos-worker-list" id="posWorkerList"></div>
+                <div class="pos-editor" id="posEditor">
+                    <p class="pos-hint">← Odaberi radnika s liste</p>
+                </div>
+            </div>
+            <div class="pos-modal-footer">
+                <button class="soft" onclick="closePosModal()">Odustani</button>
+                <button class="accent" onclick="savePosChanges()">Spremi</button>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>

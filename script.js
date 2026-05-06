@@ -1345,6 +1345,106 @@ bindStrictToggle();
     });
 })();
 
+// ===== Dodjela pozicija =====
+const LS_POSITIONS_KEY = "workerPositions_v1";
+
+function loadSavedPositions() {
+    const saved = localStorage.getItem(LS_POSITIONS_KEY);
+    if (!saved) return;
+    try {
+        const data = JSON.parse(saved);
+        for (const [id, positions] of Object.entries(data)) {
+            const w = workers.find(x => x.id === id);
+            if (w) {
+                w.sposobnePozicije = positions;
+                if (workersMap[id]) workersMap[id].sposobnePozicije = positions;
+            }
+        }
+    } catch (e) {}
+}
+loadSavedPositions();
+
+let posEditState = { workerId: null, positions: [] };
+
+function openPositionAssignment() {
+    posEditState = { workerId: null, positions: [] };
+    const box = document.getElementById("posWorkerList");
+    if (box) {
+        box.innerHTML = workers.map(w => `
+            <div class="pos-worker-item" data-id="${w.id}" onclick="selectWorkerForEdit('${w.id}')">
+                ${w.ime} ${renderInlineFlag(w)}
+            </div>`).join("");
+    }
+    const editor = document.getElementById("posEditor");
+    if (editor) editor.innerHTML = `<p class="pos-hint">← Odaberi radnika s liste</p>`;
+    document.getElementById("positionModal")?.classList.remove("hidden");
+}
+
+function closePosModal() {
+    document.getElementById("positionModal")?.classList.add("hidden");
+    posEditState = { workerId: null, positions: [] };
+}
+
+function selectWorkerForEdit(workerId) {
+    posEditState.workerId = workerId;
+    const w = workersMap[workerId];
+    posEditState.positions = Array.isArray(w?.sposobnePozicije) && w.sposobnePozicije.length > 0
+        ? [...w.sposobnePozicije]
+        : [...rotationOrder];
+
+    document.querySelectorAll(".pos-worker-item").forEach(el => {
+        el.classList.toggle("selected", el.dataset.id === workerId);
+    });
+
+    renderPosButtons();
+}
+
+function renderPosButtons() {
+    const editor = document.getElementById("posEditor");
+    if (!editor || !posEditState.workerId) return;
+    const w = workersMap[posEditState.workerId];
+    editor.innerHTML = `
+        <div class="pos-editor-name">${w.ime}</div>
+        <div class="pos-buttons">
+            ${rotationOrder.map(pos => {
+                const can = posEditState.positions.includes(pos);
+                return `<button class="pos-btn ${can ? 'pos-btn--green' : 'pos-btn--red'}"
+                    onclick="togglePosButton('${pos}')">${pos}</button>`;
+            }).join("")}
+        </div>`;
+}
+
+function togglePosButton(pos) {
+    const idx = posEditState.positions.indexOf(pos);
+    if (idx >= 0) posEditState.positions.splice(idx, 1);
+    else posEditState.positions.push(pos);
+    renderPosButtons();
+}
+
+function savePosChanges() {
+    if (!posEditState.workerId) { closePosModal(); return; }
+
+    const w = workers.find(x => x.id === posEditState.workerId);
+    if (w) w.sposobnePozicije = [...posEditState.positions];
+    if (workersMap[posEditState.workerId])
+        workersMap[posEditState.workerId].sposobnePozicije = [...posEditState.positions];
+
+    const toSave = {};
+    for (const worker of workers) {
+        toSave[worker.id] = workersMap[worker.id]?.sposobnePozicije ?? [...rotationOrder];
+    }
+    localStorage.setItem(LS_POSITIONS_KEY, JSON.stringify(toSave));
+
+    updateUI();
+    sanityCheckCoverage();
+    closePosModal();
+}
+
+// Zatvori modal klikom van njega
+document.getElementById("positionModal")?.addEventListener("click", (e) => {
+    if (e.target === document.getElementById("positionModal")) closePosModal();
+});
+
 // Zatvori panel
 document.getElementById("m4Close")?.addEventListener("click", closeM4Suggest);
 // Klik na “Dodaj”

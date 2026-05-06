@@ -1385,3 +1385,141 @@ button.small {
     border-radius: 8px;
     cursor: pointer;
 }
+
+/* ===== Dodjela pozicija modal ===== */
+.pos-modal.hidden { display: none; }
+
+.pos-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.pos-modal-inner {
+    width: 660px;
+    max-width: 95vw;
+    background: #0f1620;
+    border: 1px solid rgba(255, 255, 255, .15);
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, .55);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pos-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--fg-primary);
+    font-size: 16px;
+}
+
+.pos-modal-body {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 14px;
+    min-height: 300px;
+}
+
+.pos-worker-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow-y: auto;
+    max-height: 340px;
+}
+
+.pos-worker-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: var(--bg-dark);
+    border: 1px solid var(--line);
+    color: var(--fg-primary);
+    cursor: pointer;
+    transition: background .15s;
+    font-weight: 600;
+}
+
+.pos-worker-item:hover {
+    background: rgba(14, 76, 140, .22);
+}
+
+.pos-worker-item.selected {
+    background: rgba(14, 76, 140, .42);
+    border-color: rgba(120, 180, 255, .55);
+}
+
+.pos-editor {
+    background: rgba(255, 255, 255, .02);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.pos-hint {
+    color: #9fb3c8;
+    text-align: center;
+    margin: auto;
+    font-size: 14px;
+}
+
+.pos-editor-name {
+    color: var(--dirty-white);
+    font-weight: 800;
+    font-size: 17px;
+}
+
+.pos-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.pos-btn {
+    padding: 14px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all .2s;
+    margin: 0;
+}
+
+.pos-btn--green {
+    background: rgba(46, 204, 113, .15);
+    border-color: #2ecc71;
+    color: #2ecc71;
+}
+
+.pos-btn--green:hover {
+    background: rgba(46, 204, 113, .3);
+}
+
+.pos-btn--red {
+    background: rgba(225, 6, 0, .12);
+    border-color: #e10600;
+    color: #ff6b6b;
+}
+
+.pos-btn--red:hover {
+    background: rgba(225, 6, 0, .28);
+}
+
+.pos-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
