@@ -81,6 +81,7 @@
             <button class="soft">Greške</button>
             <button class="soft">Postavke</button>
             <button class="soft" onclick="openPositionAssignment()">Dodjela pozicija</button>
+            <button class="soft" onclick="openStatusModal()">Status radnika</button>
 
             <div id="coverageWarning" class="warn-bar" style="display:none;"></div>
         </div><!-- /main -->
@@ -138,6 +139,21 @@
         </aside>
     </div><!-- /layout -->
 
+
+    <!-- Modal: Status radnika -->
+    <div id="statusModal" class="status-modal hidden">
+        <div class="status-modal-inner">
+            <div class="status-modal-head">
+                <strong>Status radnika</strong>
+                <button class="m4-close" onclick="closeStatusModal()">✕</button>
+            </div>
+            <div id="statusWorkerList" class="status-worker-list"></div>
+            <div class="status-modal-footer">
+                <button class="soft" onclick="closeStatusModal()">Odustani</button>
+                <button class="accent" onclick="saveStatusChanges()">Spremi</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal: Dodjela pozicija -->
     <div id="positionModal" class="pos-modal hidden">

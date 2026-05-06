@@ -404,6 +404,7 @@ if (!window.__m4WrapApplied) {
 
 // ------------------------ Inicijalizacija nakon što je SVE spremno ------------------------
 loadSavedPositions();
+loadSavedStatuses();
 cleanInactiveAssignments();
 cleanDisqualifiedAssignments();
 updateUI();
@@ -1358,6 +1359,84 @@ bindStrictToggle();
         showWcard(list[wcardBrowseIndex], "PREGLED");
     });
 })();
+
+// ===== Status radnika =====
+const LS_STATUS_KEY = "workerStatuses_v1";
+
+const STATUS_OPTIONS = [
+    { value: Status.POSAO,     label: "Na poslu",  cls: "status-btn--posao"     },
+    { value: Status.BOLOVANJE, label: "Bolovanje", cls: "status-btn--bolovanje" },
+    { value: Status.GODISNJI,  label: "Godišnji",  cls: "status-btn--godisnji"  },
+    { value: Status.SLOBODNO,  label: "Slobodan",  cls: "status-btn--slobodan"  },
+];
+
+function loadSavedStatuses() {
+    const saved = localStorage.getItem(LS_STATUS_KEY);
+    if (!saved) return;
+    try {
+        const data = JSON.parse(saved);
+        for (const [id, status] of Object.entries(data)) {
+            const w = workers.find(x => x.id === id);
+            if (w) {
+                w.status = status;
+                if (workersMap[id]) workersMap[id].status = status;
+            }
+        }
+    } catch (e) {}
+}
+
+let statusEditState = {};
+
+function openStatusModal() {
+    statusEditState = {};
+    for (const w of workers) statusEditState[w.id] = workersMap[w.id]?.status ?? Status.POSAO;
+
+    const box = document.getElementById("statusWorkerList");
+    if (box) box.innerHTML = workers.map(w => `
+        <div class="status-worker-row">
+            <div class="status-worker-name">${w.ime}</div>
+            <div class="status-btn-group" id="statusBtns_${w.id}">
+                ${STATUS_OPTIONS.map(opt => `
+                    <button class="status-btn ${opt.cls} ${statusEditState[w.id] === opt.value ? 'active' : ''}"
+                        onclick="setWorkerStatus('${w.id}', '${opt.value}')">
+                        ${opt.label}
+                    </button>`).join("")}
+            </div>
+        </div>`).join("");
+
+    document.getElementById("statusModal")?.classList.remove("hidden");
+}
+
+function closeStatusModal() {
+    document.getElementById("statusModal")?.classList.add("hidden");
+    statusEditState = {};
+}
+
+function setWorkerStatus(workerId, status) {
+    statusEditState[workerId] = status;
+    const group = document.getElementById(`statusBtns_${workerId}`);
+    if (!group) return;
+    group.querySelectorAll(".status-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.textContent.trim() === STATUS_OPTIONS.find(o => o.value === status)?.label);
+    });
+}
+
+function saveStatusChanges() {
+    for (const [id, status] of Object.entries(statusEditState)) {
+        const w = workers.find(x => x.id === id);
+        if (w) w.status = status;
+        if (workersMap[id]) workersMap[id].status = status;
+    }
+    localStorage.setItem(LS_STATUS_KEY, JSON.stringify(statusEditState));
+    cleanInactiveAssignments();
+    updateUI();
+    sanityCheckCoverage();
+    closeStatusModal();
+}
+
+document.getElementById("statusModal")?.addEventListener("click", (e) => {
+    if (e.target === document.getElementById("statusModal")) closeStatusModal();
+});
 
 // ===== Dodjela pozicija =====
 const LS_POSITIONS_KEY = "workerPositions_v1";
