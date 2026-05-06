@@ -110,6 +110,7 @@ function borrowM4ToPosition(m4id, pos) {
     // 4) Osvježi UI i tablice
     renderM4Table();
     updateUI();
+    startAutoRotation();
 }
 
 
@@ -288,6 +289,7 @@ function m4CandidatesForPosition(pos) {
 function scoreM4(w) { return (w.sposobnePozicije?.length || 99); }
 
 function openM4Suggest(pos) {
+    stopAutoRotation();
     const list = m4CandidatesForPosition(pos).sort((a, b) => scoreM4(a) - scoreM4(b)).slice(0, 5);
     const box = document.getElementById("m4Suggest");
     const ref = document.getElementById("m4PosRef");
@@ -313,6 +315,7 @@ function openM4Suggest(pos) {
 function closeM4Suggest() {
     const box = document.getElementById("m4Suggest");
     if (box) box.classList.add("hidden");
+    startAutoRotation();
 }
 
 
