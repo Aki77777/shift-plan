@@ -298,12 +298,22 @@ function openM4Suggest(pos) {
 
     ref.textContent = pos;
     if (!list.length) {
-        ul.innerHTML = `<div class="m4-item"><div class="meta">Nema raspoloživih radnika za poziciju ${pos}.</div></div>`;
+        ul.innerHTML = `<div class="m4-item"><div class="meta"><div class="m4-worker-info"><div class="m4-worker-name">Nema raspoloživih radnika za poziciju ${pos}.</div></div></div></div>`;
     } else {
         ul.innerHTML = list.map(w => {
             const flag = renderInlineFlag(w);
+            const posCount = w.sposobnePozicije?.length === rotationOrder.length
+                ? "sve pozicije"
+                : `${w.sposobnePozicije?.length ?? 0} pozicija`;
             return `<div class="m4-item">
-        <div class="meta"><span class="badge-m4">M4</span> ${w.ime} ${flag}</div>
+        <div class="meta">
+            <div class="m4-avail-dot"></div>
+            <span class="badge-m4">M4</span>
+            <div class="m4-worker-info">
+                <div class="m4-worker-name">${w.ime} ${flag}</div>
+                <div class="m4-worker-sub">Raspoloživ · ${posCount}</div>
+            </div>
+        </div>
         <button class="m4-choose" data-m4id="${w.id}" data-pos="${pos}">Dodaj</button>
       </div>`;
         }).join("");

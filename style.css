@@ -1329,61 +1329,117 @@ button.small {
 }
 
 .m4-suggest-inner {
-    width: 520px;
+    width: 560px;
     max-width: 92vw;
     background: #0f1620;
     border: 1px solid rgba(255, 255, 255, .15);
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .4);
-    padding: 14px;
+    border-radius: 16px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, .6);
+    padding: 20px;
 }
 
 .m4-suggest-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
+}
+
+.m4-suggest-head strong {
+    color: #f1f5f9;
+    font-size: 15px;
+}
+
+.m4-suggest-head span {
+    color: #2ecc71;
+    font-weight: 800;
+    font-size: 16px;
 }
 
 .m4-close {
     border: 1px solid rgba(255, 255, 255, .15);
     background: #162131;
     color: #e8f0fb;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
     cursor: pointer;
+    font-size: 16px;
 }
 
 .m4-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 
 .m4-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #121b28;
-    border: 1px solid rgba(255, 255, 255, .1);
-    border-radius: 10px;
-    padding: 8px 10px;
+    background: rgba(46, 204, 113, .08);
+    border: 2px solid rgba(46, 204, 113, .5);
+    border-radius: 14px;
+    padding: 14px 16px;
+    transition: background .2s, border-color .2s;
+}
+
+.m4-item:hover {
+    background: rgba(46, 204, 113, .16);
+    border-color: #2ecc71;
 }
 
 .m4-item .meta {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+}
+
+.m4-item .m4-worker-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.m4-item .m4-worker-name {
+    color: #f1f5f9;
+    font-weight: 800;
+    font-size: 16px;
+}
+
+.m4-item .m4-worker-sub {
+    color: #86efac;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.m4-item .m4-avail-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #2ecc71;
+    box-shadow: 0 0 8px rgba(46, 204, 113, .8);
+    flex-shrink: 0;
 }
 
 .m4-choose {
-    border: 1px solid rgba(255, 255, 255, .2);
-    background: linear-gradient(180deg, #1c2735, #121a24);
-    color: #e8f0fb;
-    padding: 6px 10px;
-    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, #1a9e52, #16a34a);
+    color: #fff;
+    font-weight: 800;
+    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 10px;
     cursor: pointer;
+    box-shadow: 0 4px 12px rgba(46, 204, 113, .35);
+    transition: all .2s;
+    margin: 0;
+}
+
+.m4-choose:hover {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    box-shadow: 0 4px 18px rgba(46, 204, 113, .55);
+    transform: translateY(-1px);
 }
 
 /* ===== Dodjela pozicija modal ===== */
