@@ -1040,9 +1040,30 @@ function nextShift() {
     closeShiftAndStartNext();
 }
 
-// Event listener za gumb (ako postoji u HTML-u)
+// "Nova smjena" otvara modal za odabir brzine
 const nextShiftBtn = document.getElementById("nextShiftBtn");
-if (nextShiftBtn) nextShiftBtn.addEventListener("click", nextShift);
+if (nextShiftBtn) nextShiftBtn.addEventListener("click", () => {
+    stopAutoRotation();
+    document.getElementById("shiftSpeedModal")?.classList.remove("hidden");
+});
+
+function startShiftWithSpeed(speed) {
+    document.getElementById("shiftSpeedModal")?.classList.add("hidden");
+    // Postavi mod prema odabiru
+    if (speed === 50 && currentMode === "mod1") {
+        // Zatvori staru smjenu pa prebaci u mod2
+        closeShiftAndStartNext();
+        switchToMod2();
+    } else if (speed === 100 && currentMode === "mod2") {
+        // Zatvori staru smjenu pa vrati u mod1
+        closeShiftAndStartNext();
+        switchToMod1();
+    } else {
+        // Isti mod, samo nova smjena
+        closeShiftAndStartNext();
+        startAutoRotation();
+    }
+}
 
 // ------------------------ Sažetak ------------------------
 function showSummary() {

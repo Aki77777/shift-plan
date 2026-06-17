@@ -1587,6 +1587,51 @@ button.small {
     gap: 10px;
 }
 
+/* ===== Modal: Odabir brzine smjene ===== */
+.shift-speed-modal.hidden { display: none; }
+
+.shift-speed-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+}
+
+.shift-speed-inner {
+    background: #0f1620;
+    border: 1px solid rgba(255, 255, 255, .15);
+    border-radius: 16px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, .6);
+    padding: 32px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    min-width: 340px;
+}
+
+.shift-speed-title {
+    color: var(--fg-primary);
+    font-size: 17px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.shift-speed-btns {
+    display: flex;
+    gap: 16px;
+}
+
+.shift-speed-btns button {
+    min-width: 110px;
+    padding: 14px 28px;
+    font-size: 18px;
+    font-weight: 800;
+}
+
 /* ===== Mod1 / Mod2 vidljivost ===== */
 .mod1-only { display: block; }
 .mod2-only { display: none !important; }
