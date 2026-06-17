@@ -34,21 +34,24 @@
 
                 <!-- Lijeva strana (veći razmak) -->
                 <div id="1L" class="worker L" style="top: 60px; left: 60px;"></div>
-                <div class="arrow" style="top: 68px; left: 150px;">➞</div>
-                <div id="2L" class="worker L" style="top: 60px; left: 200px;"></div>
-                <div class="arrow" style="top: 68px; left: 290px;">➞</div>
+                <div class="arrow mod1-only" style="top: 68px; left: 150px;">➞</div>
+                <div id="2L" class="worker L mod1-only" style="top: 60px; left: 200px;"></div>
+                <div class="arrow mod1-only" style="top: 68px; left: 290px;">➞</div>
                 <div id="3L" class="worker L" style="top: 60px; left: 340px;"></div>
                 <div class="arrow" style="top: 68px; left: 430px;">➞</div>
                 <div id="4L" class="worker L" style="top: 60px; left: 480px;"></div>
 
                 <!-- Desna strana (veći razmak) -->
                 <div id="1D" class="worker D" style="top: 180px; left: 60px;"></div>
-                <div class="arrow" style="top: 188px; left: 150px;">➞</div>
-                <div id="2D" class="worker D" style="top: 180px; left: 200px;"></div>
-                <div class="arrow" style="top: 188px; left: 290px;">➞</div>
+                <div class="arrow mod1-only" style="top: 188px; left: 150px;">➞</div>
+                <div id="2D" class="worker D mod1-only" style="top: 180px; left: 200px;"></div>
+                <div class="arrow mod1-only" style="top: 188px; left: 290px;">➞</div>
                 <div id="3D" class="worker D" style="top: 180px; left: 340px;"></div>
                 <div class="arrow" style="top: 188px; left: 430px;">➞</div>
                 <div id="4D" class="worker D" style="top: 180px; left: 480px;"></div>
+
+                <!-- Mod2: pozicija 2 (spoj 2L i 2D) -->
+                <div id="pos2" class="worker center mod2-only" style="top: 120px; left: 200px;"></div>
 
                 <!-- Pozicija 5 -->
                 <div id="5" class="worker center" style="top: 120px; left: 600px;"></div>
@@ -82,8 +85,16 @@
             <button class="soft">Postavke</button>
             <button class="soft" onclick="openPositionAssignment()">Dodjela pozicija</button>
             <button class="soft" onclick="openStatusModal()">Status radnika</button>
+            <button id="speedModeBtn" class="soft" onclick="toggleSpeedMode()">Brzina 50%</button>
 
             <div id="coverageWarning" class="warn-bar" style="display:none;"></div>
+
+            <!-- 590/591 kartica (vidljiva samo u mod2) -->
+            <div id="card590" class="card-590 mod2-only" style="display:none;">
+                <div class="card-590-badge">590 / 591</div>
+                <div id="name590" class="card-590-name">—</div>
+                <div class="card-590-sub">Kontrola novih modela</div>
+            </div>
         </div><!-- /main -->
 
         <!-- Sidebar: Standby radnici + Kartica radnika -->

@@ -4,6 +4,14 @@ let wcardBrowseIndex = null;   // null = LIVE (nije u pregledu)
 // localStorage ključevi i konstante (moraju biti na vrhu – koriste se u init bloku)
 const LS_POSITIONS_KEY = "workerPositions_v1";
 const LS_STATUS_KEY = "workerStatuses_v1";
+
+// ===== Mod2 (Brzina 50%) =====
+let currentMode = "mod1";
+// Redoslijed ciklusa u mod2: 1D→2→3D→4D→5→1L→3L→4L→1D
+const mod2CyclePositions = ["1D", "2", "3D", "4D", "5", "1L", "3L", "4L"];
+const mod2ActivePositions = ["1L", "3L", "4L", "1D", "3D", "4D", "2", "5"];
+const __mod2CycleIdx = Object.fromEntries(mod2CyclePositions.map((p, i) => [p, i]));
+let worker590Id = null;
 const STATUS_OPTIONS = [
     { value: "na_poslu",   label: "Na poslu",  cls: "status-btn--posao"     },
     { value: "bolovanje",  label: "Bolovanje", cls: "status-btn--bolovanje" },
@@ -479,11 +487,19 @@ function displayName(workerId) {
 
 function updateUI() {
     cleanInactiveAssignments();
-    for (const pos of rotationOrder) {
-        const el = document.getElementById(pos);
+    const positions = currentMode === "mod2" ? mod2ActivePositions : rotationOrder;
+
+    // U mod2 mapiramo poziciju "2" na element s id="pos2"
+    function getEl(pos) {
+        if (pos === "2") return document.getElementById("pos2");
+        return document.getElementById(pos);
+    }
+
+    for (const pos of positions) {
+        const el = getEl(pos);
         if (!el) continue;
 
-        const workerId = assignment[pos];           // npr. "w3"
+        const workerId = assignment[pos];
         const worker = workerId ? workersMap[workerId] : null;
 
         if (worker && worker.ime) {
@@ -499,9 +515,8 @@ function updateUI() {
         const oldFlag = el.querySelector(".corner-flag");
         if (oldFlag) oldFlag.remove();
 
-        // dodaj novi ako treba (red/orange/yellow prema broju dopuštenih)
         if (worker) {
-            const f = flagCodeFor(worker); // "red" | "orange" | "yellow" | ""
+            const f = flagCodeFor(worker);
             if (f) {
                 const span = document.createElement("span");
                 span.className = `corner-flag flag-${f}`;
@@ -512,6 +527,8 @@ function updateUI() {
             }
         }
     }
+
+    if (currentMode === "mod2") render590Card();
 }
 
 
@@ -543,7 +560,8 @@ function isActive(workerId) {
 
 // Ukloni neaktivne radnike iz trenutno dodijeljenih pozicija (odmah)
 function cleanInactiveAssignments() {
-    for (const pos of rotationOrder) {
+    const positions = currentMode === "mod2" ? mod2ActivePositions : rotationOrder;
+    for (const pos of positions) {
         const wid = assignment[pos];
         if (wid && !isActive(wid)) {
             assignment[pos] = undefined;
@@ -948,7 +966,9 @@ function rotate() {
     // 1) makni neaktivne iz trenutnih pozicija prije svake nove dodjele
     cleanInactiveAssignments();
 
-    assignment = computeNextAssignment(assignment);
+    assignment = currentMode === "mod2"
+        ? computeNextAssignmentMod2(assignment)
+        : computeNextAssignment(assignment);
     // zapiši snapshot ove runde u raspored tekuće smjene
     currentShiftSchedule.push(snapshotAssignment(assignment));
 
@@ -1552,6 +1572,177 @@ function savePosChanges() {
 document.getElementById("positionModal")?.addEventListener("click", (e) => {
     if (e.target === document.getElementById("positionModal")) closePosModal();
 });
+
+// ===== Mod2: Brzina 50% =====
+
+function canDoInMod2(w, pos) {
+    if (pos === "2") return canDo(w, "2L") || canDo(w, "2D");
+    return canDo(w, pos);
+}
+
+function computeNextAssignmentMod2(currentAssign) {
+    const next = {};
+    const occupied = new Set();
+    const placedIds = new Set();
+
+    // Svi aktivni radnici: na liniji + onaj na 590/591
+    const inAssignment = Object.values(currentAssign).filter(Boolean);
+    const allIds = [...new Set([...inAssignment, ...(worker590Id ? [worker590Id] : [])])];
+
+    const candidates = allIds
+        .map(id => getWorkerById(id))
+        .filter(w => w && isActiveWorker(w))
+        .map(w => {
+            const can = mod2ActivePositions.filter(pos => canDoInMod2(w, pos));
+            return { w, can, canCount: can.length };
+        })
+        .sort((a, b) => (a.canCount - b.canCount) || (a.w.id > b.w.id ? 1 : -1));
+
+    for (const { w, can } of candidates) {
+        if (placedIds.has(w.id)) continue;
+
+        const src = Object.keys(currentAssign).find(p => currentAssign[p] === w.id)
+            ?? (w.id === worker590Id ? null : null);
+
+        // nominalna sljedeća pozicija u mod2 ciklusu
+        let target = null;
+        if (src && __mod2CycleIdx[src] !== undefined) {
+            const nominal = mod2CyclePositions[(__mod2CycleIdx[src] + 1) % mod2CyclePositions.length];
+            if (can.includes(nominal) && !next[nominal]) {
+                target = nominal;
+            }
+        }
+
+        if (!target) {
+            const startIdx = src && __mod2CycleIdx[src] !== undefined ? __mod2CycleIdx[src] : 0;
+            for (let step = 1; step <= mod2CyclePositions.length; step++) {
+                const pos = mod2CyclePositions[(startIdx + step) % mod2CyclePositions.length];
+                if (!occupied.has(pos) && can.includes(pos)) {
+                    target = pos;
+                    break;
+                }
+            }
+        }
+
+        if (target) {
+            next[target] = w.id;
+            occupied.add(target);
+            placedIds.add(w.id);
+        }
+    }
+
+    // Radnik koji nije raspoređen ide na 590/591
+    worker590Id = allIds.find(id => {
+        const w = getWorkerById(id);
+        return w && isActiveWorker(w) && !placedIds.has(id);
+    }) ?? null;
+
+    for (const pos of mod2ActivePositions) {
+        if (!next[pos]) next[pos] = null;
+    }
+    return next;
+}
+
+function buildInitialMod2Assignment() {
+    const active = workers.filter(w => w.status === Status.POSAO);
+    const newAssign = {};
+    const occupied = new Set();
+    const placed = new Set();
+
+    const candidates = active
+        .map(w => {
+            const can = mod2ActivePositions.filter(pos => canDoInMod2(w, pos));
+            return { w, can, canCount: can.length };
+        })
+        .sort((a, b) => (a.canCount - b.canCount) || (a.w.id > b.w.id ? 1 : -1));
+
+    for (const { w, can } of candidates) {
+        for (const pos of mod2CyclePositions) {
+            if (!occupied.has(pos) && can.includes(pos)) {
+                newAssign[pos] = w.id;
+                occupied.add(pos);
+                placed.add(w.id);
+                break;
+            }
+        }
+    }
+
+    worker590Id = active.find(w => !placed.has(w.id))?.id ?? null;
+    for (const pos of mod2ActivePositions) {
+        if (!newAssign[pos]) newAssign[pos] = null;
+    }
+    return newAssign;
+}
+
+function buildInitialMod1Assignment() {
+    const active = workers.filter(w => w.status === Status.POSAO);
+    const newAssign = {};
+    const occupied = new Set();
+
+    const candidates = active
+        .map(w => ({ w, count: allowedCount(w) }))
+        .sort((a, b) => a.count - b.count);
+
+    for (const { w } of candidates) {
+        for (const pos of rotationOrder) {
+            if (!occupied.has(pos) && canDo(w, pos)) {
+                newAssign[pos] = w.id;
+                occupied.add(pos);
+                break;
+            }
+        }
+    }
+    for (const pos of rotationOrder) {
+        if (!newAssign[pos]) newAssign[pos] = null;
+    }
+    return newAssign;
+}
+
+function render590Card() {
+    const card = document.getElementById("card590");
+    const nameEl = document.getElementById("name590");
+    if (!card) return;
+    if (worker590Id) {
+        const w = getWorkerById(worker590Id);
+        if (nameEl) nameEl.textContent = w?.ime ?? "—";
+        card.style.display = "flex";
+    } else {
+        card.style.display = "none";
+    }
+}
+
+function toggleSpeedMode() {
+    if (currentMode === "mod1") switchToMod2();
+    else switchToMod1();
+}
+
+function switchToMod2() {
+    currentMode = "mod2";
+    stopAutoRotation();
+    assignment = buildInitialMod2Assignment();
+    document.body.classList.add("mode-mod2");
+    document.getElementById("speedModeBtn").textContent = "Brzina 100%";
+    updateUI();
+    sanityCheckCoverage();
+    startAutoRotation();
+}
+
+function switchToMod1() {
+    currentMode = "mod1";
+    stopAutoRotation();
+    worker590Id = null;
+    // Očisti pos2 element
+    const pos2el = document.getElementById("pos2");
+    if (pos2el) { pos2el.textContent = ""; pos2el.classList.remove("empty"); }
+    assignment = buildInitialMod1Assignment();
+    document.body.classList.remove("mode-mod2");
+    document.getElementById("speedModeBtn").textContent = "Brzina 50%";
+    const card = document.getElementById("card590");
+    if (card) card.style.display = "none";
+    updateUI();
+    sanityCheckCoverage();
+    startAutoRotation();
+}
 
 // Zatvori panel
 document.getElementById("m4Close")?.addEventListener("click", closeM4Suggest);
